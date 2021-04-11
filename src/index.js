@@ -1,22 +1,18 @@
+import slides from "./slides";
+
 const CANVAS_ID = "canvas-slider";
-const COLORS = ["forestgreen", "orange", "pink", "purple", "red"];
-const DRAG_DIRECTION = {
-  Left: -1,
-  Right: 1,
-};
-
-let dragging = false;
-let draggingStart = false;
-let dx = 0;
-let dragX = null;
-
-$canvas = document.getElementById(CANVAS_ID);
-$ctx = $canvas.getContext("2d");
-
+const $canvas = document.getElementById(CANVAS_ID);
+const $ctx = $canvas.getContext("2d");
+const loadedImages = {};
 const stage = {
   height: $ctx.canvas.height,
   width: $ctx.canvas.width,
 };
+
+let dragStartX = null;
+let dx = 0;
+let isDragging = false;
+let isMousePressed = false;
 
 bindMouseEvents($canvas);
 init();
@@ -24,43 +20,47 @@ init();
 function bindMouseEvents($el) {
   document.addEventListener("mouseup", function (event) {
     $el.style.cursor = "grab";
-    dragX = null;
-    dragging = false;
-    draggingStart = false;
+    dragStartX = null;
+    isDragging = false;
+    isMousePressed = false;
   });
 
   $el.addEventListener("mousedown", function (event) {
     $el.style.cursor = "grabbing";
-    draggingStart = true;
-    dragX = event.x - dx;
+    dragStartX = event.x - dx;
+    isMousePressed = true;
   });
 
   document.addEventListener("mousemove", function (event) {
-    if (!draggingStart) return;
-    dragging = true;
-    dx = event.x - (dragX ?? 0);
+    if (!isMousePressed) return;
+    isDragging = true;
+    dx = event.x - (dragStartX ?? 0);
   });
 }
 
 function draw(t = 0) {
-  if (t === 0 || dragging) {
+  if (!t || isDragging) {
     clearCanvas($ctx, stage);
 
-    COLORS.forEach((color, idx) => {
-      const x = stage.width * idx;
-      const xLimit = stage.width * (COLORS.length - 1 - idx) * -1;
-
-      drawRect(
-        $ctx,
-        {
-          color,
-          h: stage.height,
-          w: stage.width,
-          x: Math.max(Math.min(x, dx + x), xLimit),
-          y: 0,
-        },
+    slides.forEach((cat, idx) => {
+      const drawDimensions = fitAspectRatio(
+        { width: cat.width, height: cat.height },
         stage
       );
+      const center = getCenter(drawDimensions, stage);
+      const limitX =
+        stage.width * (slides.length - 1 - idx) * -1 + center.x;
+      const x = stage.width * idx + center.x;
+      const finalX = Math.max(Math.min(x, dx + x), limitX);
+
+      drawImage($ctx, {
+        height: drawDimensions.height,
+        id: cat.id,
+        url: cat.url,
+        width: drawDimensions.width,
+        x: finalX,
+        y: center.y,
+      });
     });
   }
 
@@ -71,11 +71,39 @@ function init() {
   draw();
 }
 
-function drawRect(ctx, { color, h, w, x, y }, stage) {
-  ctx.fillStyle = color;
-  ctx.fillRect(x, y, w, h);
+function drawImage(
+  ctx,
+  { id = "", url, height, width, x = 0, y = 0 }
+) {
+  if (!loadedImages[id]) {
+    const img = new Image();
+    img.onload = () => ctx.drawImage(img, x, y, width, height);
+    img.src = url;
+    loadedImages[id] = img;
+  } else {
+    ctx.drawImage(loadedImages[id], x, y, width, height);
+  }
 }
 
 function clearCanvas(ctx, { width, height }) {
   ctx.clearRect(0, 0, width, height);
+}
+
+function fitAspectRatio(source, target) {
+  const ratio = Math.min(
+    target.height / source.height,
+    target.width / source.width
+  );
+
+  return {
+    height: source.height * ratio,
+    width: source.width * ratio,
+  };
+}
+
+function getCenter(source, stage) {
+  return {
+    x: (stage.width - source.width) / 2,
+    y: (stage.height - source.height) / 2,
+  };
 }
