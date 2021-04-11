@@ -57,9 +57,9 @@ function draw(t = 0) {
   if (!t || isDragging) {
     clearCanvas($ctx, stage);
 
-    slides.forEach((cat, idx) => {
+    slides.forEach((slide, idx) => {
       const drawDimensions = fitAspectRatio(
-        { width: cat.width, height: cat.height },
+        { width: slide.width, height: slide.height },
         stage
       );
       const center = getCenter(drawDimensions, stage);
@@ -75,8 +75,8 @@ function draw(t = 0) {
 
       drawImage($ctx, {
         height: drawDimensions.height,
-        id: cat.id,
-        url: cat.url,
+        id: slide.id,
+        url: slide.url,
         width: drawDimensions.width,
         x: finalX,
         y: center.y,
