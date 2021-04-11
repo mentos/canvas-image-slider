@@ -1,6 +1,11 @@
 import slides from "./slides";
 
 const CANVAS_ID = "canvas-slider";
+const DIRECTION = {
+  Left: 'left',
+  Right: 'right',
+};
+
 const $canvas = document.getElementById(CANVAS_ID);
 const $ctx = $canvas.getContext("2d");
 const loadedImages = {};
@@ -38,7 +43,7 @@ function bindMouseEvents($el) {
     if (!isMousePressed) return;
 
     const newDx = event.x - (dragStartX ?? 0);
-    const newDirextion = dx >= newDx ? "left" : "right";
+    const newDirextion = dx >= newDx ? DIRECTION.Left : DIRECTION.Right;
 
     if (newDirextion === direction && !canDrag) return;
 
@@ -63,9 +68,9 @@ function draw(t = 0) {
       const x = stage.width * idx + center.x;
       const finalX = Math.max(Math.min(x, dx + x), limitX);
 
-      if (direction === "left") {
+      if (direction === DIRECTION.Left) {
         canDrag = finalX !== limitX;
-      } else if (direction === "right") {
+      } else if (direction === DIRECTION.Right) {
         canDrag = finalX < x;
       }
 
