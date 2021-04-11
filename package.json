@@ -1,9 +1,8 @@
 {
-  "name": "canvas-carousel",
+  "name": "canvas-image-slider",
   "version": "1.0.0",
-  "description": "A simple carousel slider build with HTML5 and JavasScript",
-  "main": "index.js",
-  "license": "MIT",
+  "description": "A simple image slider build with HTML Canvas",
+  "main": "src/index.js",
   "scripts": {
     "start": "parcel index.html --open",
     "prettify": "prettier --write ./src/**/*.js"
