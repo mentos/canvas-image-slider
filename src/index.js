@@ -9,6 +9,8 @@ const stage = {
   width: $ctx.canvas.width,
 };
 
+let canDrag = true;
+let direction = "";
 let dragStartX = null;
 let dx = 0;
 let isDragging = false;
@@ -23,6 +25,7 @@ function bindMouseEvents($el) {
     dragStartX = null;
     isDragging = false;
     isMousePressed = false;
+    direction = "";
   });
 
   $el.addEventListener("mousedown", function (event) {
@@ -33,8 +36,15 @@ function bindMouseEvents($el) {
 
   document.addEventListener("mousemove", function (event) {
     if (!isMousePressed) return;
+
+    const newDx = event.x - (dragStartX ?? 0);
+    const newDirextion = dx >= newDx ? "left" : "right";
+
+    if (newDirextion === direction && !canDrag) return;
+
     isDragging = true;
-    dx = event.x - (dragStartX ?? 0);
+    direction = newDirextion;
+    dx = newDx;
   });
 }
 
@@ -52,6 +62,12 @@ function draw(t = 0) {
         stage.width * (slides.length - 1 - idx) * -1 + center.x;
       const x = stage.width * idx + center.x;
       const finalX = Math.max(Math.min(x, dx + x), limitX);
+
+      if (direction === "left") {
+        canDrag = finalX !== limitX;
+      } else if (direction === "right") {
+        canDrag = finalX < x;
+      }
 
       drawImage($ctx, {
         height: drawDimensions.height,
