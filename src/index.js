@@ -2,8 +2,8 @@ import slides from "./slides";
 
 const CANVAS_ID = "canvas-slider";
 const DIRECTION = {
-  Left: 'left',
-  Right: 'right',
+  Left: "left",
+  Right: "right",
 };
 
 const $canvas = document.getElementById(CANVAS_ID);
@@ -63,8 +63,7 @@ function draw(t = 0) {
         stage
       );
       const center = getCenter(drawDimensions, stage);
-      const limitX =
-        stage.width * (slides.length - 1 - idx) * -1 + center.x;
+      const limitX = stage.width * (slides.length - 1 - idx) * -1 + center.x;
       const x = stage.width * idx + center.x;
       const finalX = Math.max(Math.min(x, dx + x), limitX);
 
@@ -92,10 +91,7 @@ function init() {
   draw();
 }
 
-function drawImage(
-  ctx,
-  { id = "", url, height, width, x = 0, y = 0 }
-) {
+function drawImage(ctx, { id = "", url, height, width, x = 0, y = 0 }) {
   if (!loadedImages[id]) {
     const img = new Image();
     img.onload = () => ctx.drawImage(img, x, y, width, height);
